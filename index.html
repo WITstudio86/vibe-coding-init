@@ -1,0 +1,465 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Vibe Coding Init — 多角色协作初始化</title>
+<link rel="icon" type="image/png" href="logo.png">
+<style>
+  :root {
+    --bg: #0d0d1a;
+    --card: #16162a;
+    --acc1: #ff6b6b;
+    --acc2: #feca57;
+    --acc3: #48dbfb;
+    --acc4: #1dd1a1;
+    --acc5: #a29bfe;
+    --text: #e8e8f0;
+    --muted: #8888a0;
+    --border: rgba(255,255,255,0.06);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  html { scroll-behavior:smooth; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    overflow-x: hidden;
+  }
+
+  /* ---- Background particles ---- */
+  .particles {
+    position: fixed; inset:0; pointer-events:none; z-index:0;
+  }
+  .particle {
+    position: absolute; border-radius:50%;
+    animation: floatUp linear infinite;
+    opacity: 0.15;
+  }
+  @keyframes floatUp {
+    0% { transform:translateY(100vh) scale(0); opacity:0; }
+    10% { opacity:0.15; }
+    90% { opacity:0.15; }
+    100% { transform:translateY(-10vh) scale(1); opacity:0; }
+  }
+
+  /* ---- Navigation ---- */
+  nav {
+    position: fixed; top:0; left:0; right:0; z-index:100;
+    backdrop-filter: blur(20px);
+    background: rgba(13,13,26,0.85);
+    border-bottom: 1px solid var(--border);
+  }
+  nav .inner {
+    max-width: 1100px; margin:0 auto; padding:14px 24px;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  nav .brand { display:flex; align-items:center; gap:10px; }
+  nav .brand img { height:32px; }
+  nav .brand span { font-weight:700; font-size:17px; letter-spacing:0.5px; }
+  nav .links { display:flex; gap:28px; }
+  nav .links a {
+    color: var(--muted); text-decoration:none; font-size:14px;
+    transition:color 0.2s;
+  }
+  nav .links a:hover { color: var(--text); }
+
+  /* ---- Sections ---- */
+  section { position:relative; z-index:1; padding:100px 24px; }
+  .container { max-width:1100px; margin:0 auto; }
+
+  /* ---- Hero ---- */
+  .hero { padding-top:160px; text-align:center; }
+  .hero .logo { width:140px; margin-bottom:32px; filter:drop-shadow(0 0 40px rgba(100,100,255,0.3)); }
+  .hero h1 { font-size: 56px; font-weight:800; letter-spacing:-1px; margin-bottom:16px;
+    background: linear-gradient(135deg, var(--acc1), var(--acc3), var(--acc5));
+    -webkit-background-clip:text; -webkit-text-fill-color:transparent;
+  }
+  .hero p.sub { font-size:20px; color:var(--muted); max-width:600px; margin:0 auto 40px; }
+  .hero .btns { display:flex; gap:16px; justify-content:center; flex-wrap:wrap; }
+  .btn {
+    padding:14px 32px; border-radius:12px; font-size:15px; font-weight:600;
+    text-decoration:none; cursor:pointer; transition:all 0.3s; border:none;
+    display:inline-flex; align-items:center; gap:8px;
+  }
+  .btn-primary {
+    background: linear-gradient(135deg, var(--acc5), #6c5ce7);
+    color:#fff; box-shadow:0 4px 20px rgba(108,92,231,0.4);
+  }
+  .btn-primary:hover { transform:translateY(-2px); box-shadow:0 6px 30px rgba(108,92,231,0.6); }
+  .btn-outline {
+    border:1px solid rgba(255,255,255,0.2); color:var(--text);
+    background:rgba(255,255,255,0.04);
+  }
+  .btn-outline:hover { border-color:rgba(255,255,255,0.4); background:rgba(255,255,255,0.08); }
+
+  /* ---- Stats ---- */
+  .stats { padding-top:60px; }
+  .stats-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  .stat-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:28px 20px; text-align:center;
+    transition:transform 0.3s, border-color 0.3s;
+  }
+  .stat-card:hover { transform:translateY(-4px); border-color:rgba(255,255,255,0.15); }
+  .stat-card .num { font-size:40px; font-weight:800; }
+  .stat-card .label { font-size:14px; color:var(--muted); margin-top:4px; }
+  .stat-card:nth-child(1) .num { color:var(--acc1); }
+  .stat-card:nth-child(2) .num { color:var(--acc3); }
+  .stat-card:nth-child(3) .num { color:var(--acc4); }
+  .stat-card:nth-child(4) .num { color:var(--acc5); }
+
+  /* ---- Section titles ---- */
+  .section-title { text-align:center; margin-bottom:60px; }
+  .section-title .badge {
+    display:inline-block; padding:6px 16px; border-radius:20px;
+    background:rgba(108,92,231,0.15); color:var(--acc5);
+    font-size:13px; font-weight:600; letter-spacing:1px; margin-bottom:16px;
+    text-transform:uppercase;
+  }
+  .section-title h2 { font-size:36px; font-weight:700; margin-bottom:12px; }
+  .section-title p { color:var(--muted); font-size:17px; max-width:600px; margin:0 auto; }
+
+  /* ---- Role cards ---- */
+  .roles-grid { display:grid; grid-template-columns:repeat(5,1fr); gap:16px; margin-top:40px; }
+  .role-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:28px 20px; text-align:center;
+    transition:transform 0.3s, border-color 0.3s;
+    position:relative; overflow:hidden;
+  }
+  .role-card::before {
+    content:''; position:absolute; top:0; left:0; right:0; height:3px;
+  }
+  .role-card:hover { transform:translateY(-6px); }
+  .role-card .icon { font-size:36px; margin-bottom:12px; }
+  .role-card h4 { font-size:16px; font-weight:700; margin-bottom:6px; }
+  .role-card p { font-size:13px; color:var(--muted); line-height:1.5; }
+  .role-card .output { font-size:11px; color:var(--muted); margin-top:10px; padding:4px 10px;
+    background:rgba(255,255,255,0.03); border-radius:6px; display:inline-block; font-family:monospace; }
+  .role-card:nth-child(1)::before { background:var(--acc1); }
+  .role-card:nth-child(2)::before { background:var(--acc2); }
+  .role-card:nth-child(3)::before { background:var(--acc3); }
+  .role-card:nth-child(4)::before { background:var(--acc4); }
+  .role-card:nth-child(5)::before { background:var(--acc5); }
+
+  /* ---- Flow diagram ---- */
+  .flow-diagram {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:20px; padding:50px 30px; margin-top:40px;
+    display:flex; flex-direction:column; align-items:center; gap:40px;
+  }
+  .flow-row { display:flex; align-items:center; gap:16px; }
+  .flow-node {
+    padding:16px 22px; border-radius:12px; font-weight:700; font-size:14px;
+    white-space:nowrap;
+  }
+  .flow-node.red { background:rgba(255,107,107,0.15); color:var(--acc1); border:1px solid rgba(255,107,107,0.25); }
+  .flow-node.yellow { background:rgba(254,202,87,0.15); color:var(--acc2); border:1px solid rgba(254,202,87,0.25); }
+  .flow-node.cyan { background:rgba(72,219,251,0.15); color:var(--acc3); border:1px solid rgba(72,219,251,0.25); }
+  .flow-node.green { background:rgba(29,209,161,0.15); color:var(--acc4); border:1px solid rgba(29,209,161,0.25); }
+  .flow-node.purple { background:rgba(162,155,254,0.15); color:var(--acc5); border:1px solid rgba(162,155,254,0.25); }
+  .flow-arrow { color:var(--muted); font-size:20px; }
+  .flow-label { font-size:11px; color:var(--muted); text-align:center; margin-top:-30px; }
+
+  /* ---- Features ---- */
+  .features-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:20px; }
+  .feature-card {
+    background:var(--card); border:1px solid var(--border);
+    border-radius:16px; padding:32px 24px; transition:all 0.3s;
+  }
+  .feature-card:hover { border-color:rgba(255,255,255,0.15); transform:translateY(-4px); }
+  .feature-card .feat-icon { font-size:28px; margin-bottom:16px; }
+  .feature-card h4 { font-size:17px; font-weight:700; margin-bottom:8px; }
+  .feature-card p { font-size:14px; color:var(--muted); line-height:1.6; }
+
+  /* ---- Quick Start ---- */
+  .code-block {
+    background:#0a0a16; border:1px solid var(--border); border-radius:12px;
+    padding:20px 24px; overflow-x:auto; font-family:'JetBrains Mono','Fira Code',monospace;
+    font-size:13px; line-height:1.8; color:#c0c8e0; margin-top:24px;
+  }
+  .code-block .comment { color:#5c6370; }
+  .code-block .cmd { color:var(--acc3); }
+  .code-block .arg { color:var(--acc5); }
+  .code-block .str { color:var(--acc4); }
+
+  /* ---- Footer ---- */
+  footer {
+    text-align:center; padding:60px 24px; border-top:1px solid var(--border);
+    color:var(--muted); font-size:14px;
+  }
+  footer a { color:var(--acc5); text-decoration:none; }
+  footer a:hover { text-decoration:underline; }
+
+  /* ---- Responsive ---- */
+  @media (max-width: 900px) {
+    .roles-grid { grid-template-columns: repeat(3, 1fr); }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .features-grid { grid-template-columns: 1fr 1fr; }
+    .hero h1 { font-size:36px; }
+  }
+  @media (max-width: 600px) {
+    .roles-grid { grid-template-columns:1fr 1fr; }
+    .stats-grid, .features-grid { grid-template-columns:1fr; }
+    .flow-row { flex-wrap:wrap; justify-content:center; }
+    nav .links { display:none; }
+    .hero h1 { font-size:28px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Particles -->
+<div class="particles" id="particles"></div>
+
+<!-- Nav -->
+<nav>
+  <div class="inner">
+    <div class="brand">
+      <img src="logo.svg" alt="VCI">
+      <span>Vibe Coding Init</span>
+    </div>
+    <div class="links">
+      <a href="#roles">角色</a>
+      <a href="#flow">工作流</a>
+      <a href="#features">特性</a>
+      <a href="#quickstart">快速开始</a>
+      <a href="https://github.com/WITstudio86/vibe-coding-init" target="_blank">GitHub ↗</a>
+    </div>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero">
+  <img class="logo" src="logo.svg" alt="Vibe Coding Init Logo">
+  <h1>一键初始化多角色协作</h1>
+  <p class="sub">告别手动配置，五秒搭建需求分析、Bug 修复、技术设计、代码编写、功能验证五大角色协作体系</p>
+  <div class="btns">
+    <a class="btn btn-primary" href="#quickstart">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,17 10,11 4,5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
+      快速开始
+    </a>
+    <a class="btn btn-outline" href="https://github.com/WITstudio86/vibe-coding-init" target="_blank">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/></svg>
+      GitHub
+    </a>
+  </div>
+</section>
+
+<!-- Stats -->
+<section class="stats">
+  <div class="container">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="num">5</div>
+        <div class="label">协作角色</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">2</div>
+        <div class="label">工作流入口</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">10+</div>
+        <div class="label">Superpowers 集成</div>
+      </div>
+      <div class="stat-card">
+        <div class="num">5s</div>
+        <div class="label">完成初始化</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Roles -->
+<section id="roles">
+  <div class="container">
+    <div class="section-title">
+      <div class="badge">角色体系</div>
+      <h2>五大角色，各司其职</h2>
+      <p>每个角色拥有独立的 ZCode 会话，通过消息总线自动协作</p>
+    </div>
+    <div class="roles-grid">
+      <div class="role-card">
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#ff6b6b" stroke-width="3"/><path d="M18 22 L24 16 L30 22" stroke="#ff6b6b" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="24" y1="22" x2="24" y2="34" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/></svg></div>
+        <h4>需求分析</h4>
+        <p>新功能入口，拆解任务，编写可执行规格说明</p>
+        <span class="output">.vibe/SPEC.md</span>
+      </div>
+      <div class="role-card">
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#feca57" stroke-width="3"/><path d="M18 16 L30 32 M30 16 L18 32" stroke="#feca57" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="24" r="4" stroke="#feca57" stroke-width="2"/></svg></div>
+        <h4>Bug 修复</h4>
+        <p>缺陷修复入口，根因分析，编写修复方案</p>
+        <span class="output">.vibe/BUGFIX.md</span>
+      </div>
+      <div class="role-card">
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#48dbfb" stroke-width="3"/><rect x="14" y="14" width="20" height="20" rx="3" stroke="#48dbfb" stroke-width="2.5"/><line x1="18" y1="20" x2="30" y2="20" stroke="#48dbfb" stroke-width="2"/><line x1="18" y1="25" x2="26" y2="25" stroke="#48dbfb" stroke-width="2"/></svg></div>
+        <h4>技术设计</h4>
+        <p>架构方案、数据模型、接口契约</p>
+        <span class="output">.vibe/DESIGN.md</span>
+      </div>
+      <div class="role-card">
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#1dd1a1" stroke-width="3"/><polyline points="16,24 22,30 32,18" stroke="#1dd1a1" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h4>代码编写</h4>
+        <p>根据方案实现功能，TDD + 并行子代理</p>
+        <span class="output">项目源码</span>
+      </div>
+      <div class="role-card">
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#a29bfe" stroke-width="3"/><polyline points="10,26 18,34 38,14" stroke="#a29bfe" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h4>功能验证</h4>
+        <p>验收功能、审查质量、闭环反馈</p>
+        <span class="output">验证报告</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Flow -->
+<section id="flow">
+  <div class="container">
+    <div class="section-title">
+      <div class="badge">工作流</div>
+      <h2>双入口协作流水线</h2>
+      <p>新功能开发与缺陷修复两条独立通道，灵活切换</p>
+    </div>
+    <div class="flow-diagram">
+      <div style="color:var(--muted);font-size:13px;margin-bottom:-16px;">新功能流</div>
+      <div class="flow-row">
+        <div class="flow-node red">🎯 需求分析</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node cyan">🏗️ 技术设计</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">💻 代码编写</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node purple">✅ 功能验证</div>
+      </div>
+      <div style="width:100%;border-top:1px dashed var(--border);margin:16px 0;"></div>
+      <div style="color:var(--muted);font-size:13px;margin-bottom:-16px;">缺陷修复流</div>
+      <div class="flow-row">
+        <div class="flow-node purple">✅ 功能验证</div>
+        <div class="flow-arrow" style="font-size:12px;">Bug 报告 →</div>
+        <div class="flow-node yellow">🐛 Bug 修复</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node green">💻 代码编写</div>
+        <div class="flow-arrow">→</div>
+        <div class="flow-node purple">✅ 功能验证</div>
+      </div>
+      <div class="flow-row" style="margin-top:8px;">
+        <span style="color:var(--muted);font-size:12px;">复杂 Bug 可经</span>
+        <div class="flow-node cyan" style="padding:8px 14px;font-size:12px;">技术设计</div>
+        <span style="color:var(--muted);font-size:12px;">中转</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features -->
+<section id="features">
+  <div class="container">
+    <div class="section-title">
+      <div class="badge">特性</div>
+      <h2>开箱即用的协作基础设施</h2>
+    </div>
+    <div class="features-grid">
+      <div class="feature-card">
+        <div class="feat-icon">🚀</div>
+        <h4>一键初始化</h4>
+        <p>自动创建 Git 仓库、<code>.vibe/</code> 目录、角色分配文件、跨会话消息总线，5 秒完成全部配置。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🤖</div>
+        <h4>自动创建会话</h4>
+        <p>通过 ZCode CLI 自动创建 5 个角色会话，自动注册到 GUI 任务列表，标题清晰展示角色名。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">📨</div>
+        <h4>跨会话通信</h4>
+        <p><code>HANDOFF.md</code> 消息总线 + <code>ReadSessionContext</code> 上下文拉取，角色间无缝协作。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🔀</div>
+        <h4>双入口工作流</h4>
+        <p>新功能走需求分析 → 设计 → 编码 → 验证；Bug 修复走验证 → 分析 → 编码 → 验证。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">⚡</div>
+        <h4>Superpowers 集成</h4>
+        <p>每个角色预设最佳 Superpower 武器库：brainstorming、TDD、systematic-debugging、verification 等。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">📋</div>
+        <h4>标准产出文件</h4>
+        <p><code>SPEC.md</code> · <code>DESIGN.md</code> · <code>BUGFIX.md</code> — 每个角色有明确的交付物和验收标准。</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Quick Start -->
+<section id="quickstart">
+  <div class="container">
+    <div class="section-title">
+      <div class="badge">快速开始</div>
+      <h2>三步开始协作</h2>
+    </div>
+
+    <h3 style="margin-top:40px;">1. 安装 Skill</h3>
+    <div class="code-block">
+      <span class="comment"># 克隆到用户 skills 目录</span><br>
+      git clone <span class="str">https://github.com/WITstudio86/vibe-coding-init.git</span> ~/.agents/skills/vibe-coding-init/
+    </div>
+
+    <h3 style="margin-top:32px;">2. 触发初始化</h3>
+    <div class="code-block">
+      <span class="comment"># 在 ZCode 中打开项目目录，输入：</span><br>
+      <span class="cmd">初始化 vibe coding 项目</span>
+    </div>
+
+    <h3 style="margin-top:32px;">3. 自动创建会话（需 Node ≥ 22）</h3>
+    <div class="code-block">
+      <span class="comment"># Skill 自动执行以下流程：</span><br>
+      git init<br>
+      mkdir -p .vibe<br>
+      <span class="comment"># 创建 ROLES.md + HANDOFF.md</span><br>
+      <span class="comment"># 创建 5 个 ZCode 会话（需求分析 / Bug修复 / 技术设计 / 代码编写 / 功能验证）</span><br>
+      <span class="comment"># 注册到 GUI 任务列表</span>
+    </div>
+  </div>
+</section>
+
+<!-- Footer -->
+<footer>
+  <p>
+    <img src="logo.svg" height="20" style="vertical-align:middle;margin-right:8px;" alt="">
+    <strong>Vibe Coding Init</strong>
+    &nbsp;·&nbsp; ZCode Skill for multi-role collaboration
+  </p>
+  <p style="margin-top:8px;">
+    <a href="https://github.com/WITstudio86/vibe-coding-init" target="_blank">GitHub</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/WITstudio86/vibe-coding-init/blob/master/SKILL.md" target="_blank">SKILL.md</a>
+    &nbsp;·&nbsp;
+    MIT License
+  </p>
+</footer>
+
+<script>
+// Floating particles
+(function(){
+  const c = document.getElementById('particles');
+  const colors = ['#ff6b6b','#feca57','#48dbfb','#1dd1a1','#a29bfe','#fff'];
+  for(let i=0;i<40;i++){
+    const p = document.createElement('div');
+    p.className = 'particle';
+    p.style.left = Math.random()*100+'%';
+    p.style.width = p.style.height = (2+Math.random()*4)+'px';
+    p.style.background = colors[Math.floor(Math.random()*colors.length)];
+    p.style.animationDuration = (8+Math.random()*20)+'s';
+    p.style.animationDelay = Math.random()*15+'s';
+    c.appendChild(p);
+  }
+})();
+</script>
+</body>
+</html>
