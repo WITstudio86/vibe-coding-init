@@ -111,19 +111,13 @@ mkdir -p .vibe
 
 **每个角色完成后，直接用 Bash 工具执行触发命令，不询问用户。**
 
-触发命令格式：
-```bash
-node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs \
-  --resume <下游会话ID> \
-  --prompt "<具体任务描述>" \
-  --cwd <项目目录> --mode yolo &
-```
+触发命令：使用 `/trigger <会话ID> "<任务>"` 即可唤醒下游，无需手动拼 Bash 命令。
+示例：`/trigger sess_xxx "请读取 SPEC.md，设计架构方案并输出 DESIGN.md"`
 
 要点：
-- `--mode yolo`：下游会话自动执行，无需权限确认
-- `&`：后台运行，不阻塞当前会话
-- 触发后立即告知用户「已自动触发 [下游角色]」，不等待下游响应
-- 如果下游会话 ID 未知，从 `.vibe/ROLES.md` 中读取
+- 会话 ID 从 `.vibe/ROLES.md` 中读取
+- 触发后立即告知用户「✅ 已触发 [下游角色]」
+- 下游的回复自动保存到会话历史，用户可随时查看
 
 ---
 
@@ -421,7 +415,11 @@ cli.close(); v2.close();
 
 ### 9. 初始化 .gitignore
 
-建议不忽略 `.vibe/`——协作核心文档应被追踪。
+在 `.gitignore` 中添加 `.vibe/`，避免协作临时文件进入版本控制：
+
+```bash
+echo ".vibe/" >> .gitignore
+```
 
 ### 10. 输出初始化摘要
 
