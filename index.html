@@ -234,8 +234,8 @@
 <!-- Hero -->
 <section class="hero">
   <img class="logo" src="logo.svg" alt="Vibe Coding Init Logo">
-  <h1>一键初始化多角色协作</h1>
-  <p class="sub">告别手动配置，五秒搭建需求分析、Bug 修复、技术设计、代码编写、功能验证五大角色协作体系</p>
+  <h1>一键初始化多角色自动协作</h1>
+  <p class="sub">告别手动配置，五秒搭建规划师、程序员、审查员、调试员四大角色协作体系，自动触发下游、无缝接力</p>
   <div class="btns">
     <a class="btn btn-primary" href="#quickstart">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,17 10,11 4,5"/><line x1="12" y1="19" x2="20" y2="19"/></svg>
@@ -253,7 +253,7 @@
   <div class="container">
     <div class="stats-grid">
       <div class="stat-card">
-        <div class="num">5</div>
+        <div class="num">4</div>
         <div class="label">协作角色</div>
       </div>
       <div class="stat-card">
@@ -277,39 +277,33 @@
   <div class="container">
     <div class="section-title">
       <div class="badge">角色体系</div>
-      <h2>五大角色，各司其职</h2>
-      <p>每个角色拥有独立的 ZCode 会话，通过消息总线自动协作</p>
+      <h2>四大角色，各司其职</h2>
+      <p>每个角色拥有独立的 ZCode 会话，通过 /trigger 命令自动协作</p>
     </div>
     <div class="roles-grid">
       <div class="role-card">
-        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#ff6b6b" stroke-width="3"/><path d="M18 22 L24 16 L30 22" stroke="#ff6b6b" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/><line x1="24" y1="22" x2="24" y2="34" stroke="#ff6b6b" stroke-width="2.5" stroke-linecap="round"/></svg></div>
-        <h4>需求分析</h4>
-        <p>新功能入口，拆解任务，编写可执行规格说明</p>
-        <span class="output">.vibe/SPEC.md</span>
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#ff6b6b" stroke-width="3"/><rect x="14" y="14" width="20" height="20" rx="3" stroke="#ff6b6b" stroke-width="2.5"/><line x1="18" y1="20" x2="30" y2="20" stroke="#ff6b6b" stroke-width="2"/><line x1="18" y1="25" x2="26" y2="25" stroke="#ff6b6b" stroke-width="2"/></svg></div>
+        <h4>规划师</h4>
+        <p>需求分析+技术设计，输出可执行方案</p>
+        <span class="output">SPEC.md + DESIGN.md</span>
       </div>
       <div class="role-card">
-        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#feca57" stroke-width="3"/><path d="M18 16 L30 32 M30 16 L18 32" stroke="#feca57" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="24" r="4" stroke="#feca57" stroke-width="2"/></svg></div>
-        <h4>Bug 修复</h4>
-        <p>缺陷修复入口，根因分析，编写修复方案</p>
-        <span class="output">.vibe/BUGFIX.md</span>
-      </div>
-      <div class="role-card">
-        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#48dbfb" stroke-width="3"/><rect x="14" y="14" width="20" height="20" rx="3" stroke="#48dbfb" stroke-width="2.5"/><line x1="18" y1="20" x2="30" y2="20" stroke="#48dbfb" stroke-width="2"/><line x1="18" y1="25" x2="26" y2="25" stroke="#48dbfb" stroke-width="2"/></svg></div>
-        <h4>技术设计</h4>
-        <p>架构方案、数据模型、接口契约</p>
-        <span class="output">.vibe/DESIGN.md</span>
-      </div>
-      <div class="role-card">
-        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#1dd1a1" stroke-width="3"/><polyline points="16,24 22,30 32,18" stroke="#1dd1a1" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <h4>代码编写</h4>
-        <p>根据方案实现功能，TDD + 并行子代理</p>
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#48dbfb" stroke-width="3"/><polyline points="16,24 22,30 32,18" stroke="#48dbfb" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+        <h4>程序员</h4>
+        <p>TDD编码实现，不设计不验收</p>
         <span class="output">项目源码</span>
       </div>
       <div class="role-card">
         <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#a29bfe" stroke-width="3"/><polyline points="10,26 18,34 38,14" stroke="#a29bfe" stroke-width="3" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-        <h4>功能验证</h4>
-        <p>验收功能、审查质量、闭环反馈</p>
-        <span class="output">验证报告</span>
+        <h4>审查员</h4>
+        <p>功能验收+代码审查，只验证不修改</p>
+        <span class="output">REVIEW.md</span>
+      </div>
+      <div class="role-card">
+        <div class="icon"><svg width="40" height="40" viewBox="0 0 48 48" fill="none"><circle cx="24" cy="24" r="22" stroke="#feca57" stroke-width="3"/><path d="M18 16 L30 32 M30 16 L18 32" stroke="#feca57" stroke-width="2.5" stroke-linecap="round"/><circle cx="24" cy="24" r="4" stroke="#feca57" stroke-width="2"/></svg></div>
+        <h4>调试员</h4>
+        <p>Bug根因分析，一行代码都不改</p>
+        <span class="output">BUGFIX.md</span>
       </div>
     </div>
   </div>
@@ -320,35 +314,27 @@
   <div class="container">
     <div class="section-title">
       <div class="badge">工作流</div>
-      <h2>双入口协作流水线</h2>
-      <p>新功能开发与缺陷修复两条独立通道，灵活切换</p>
+      <h2>自动协作流水线</h2>
+      <p>/trigger 命令串联四角色，规划师→程序员→审查员，Bug 回溯调试员</p>
     </div>
     <div class="flow-diagram">
-      <div style="color:var(--muted);font-size:13px;margin-bottom:-16px;">新功能流</div>
       <div class="flow-row">
-        <div class="flow-node red">🎯 需求分析</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-node cyan">🏗️ 技术设计</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-node green">💻 代码编写</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-node purple">✅ 功能验证</div>
+        <div class="flow-node red">📐 规划师</div>
+        <div class="flow-arrow">/trigger →</div>
+        <div class="flow-node cyan">💻 程序员</div>
+        <div class="flow-arrow">/trigger →</div>
+        <div class="flow-node purple">🔍 审查员</div>
       </div>
       <div style="width:100%;border-top:1px dashed var(--border);margin:16px 0;"></div>
-      <div style="color:var(--muted);font-size:13px;margin-bottom:-16px;">缺陷修复流</div>
       <div class="flow-row">
-        <div class="flow-node purple">✅ 功能验证</div>
-        <div class="flow-arrow" style="font-size:12px;">Bug 报告 →</div>
-        <div class="flow-node yellow">🐛 Bug 修复</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-node green">💻 代码编写</div>
-        <div class="flow-arrow">→</div>
-        <div class="flow-node purple">✅ 功能验证</div>
+        <div class="flow-node purple">🔍 审查员</div>
+        <div class="flow-arrow" style="font-size:12px;">Bug →</div>
+        <div class="flow-node yellow">🐛 调试员</div>
+        <div class="flow-arrow">/trigger →</div>
+        <div class="flow-node cyan">💻 程序员</div>
       </div>
       <div class="flow-row" style="margin-top:8px;">
-        <span style="color:var(--muted);font-size:12px;">复杂 Bug 可经</span>
-        <div class="flow-node cyan" style="padding:8px 14px;font-size:12px;">技术设计</div>
-        <span style="color:var(--muted);font-size:12px;">中转</span>
+        <span style="color:var(--muted);font-size:12px;">偏差 → /trigger 规划师</span>
       </div>
     </div>
   </div>
@@ -363,34 +349,34 @@
     </div>
     <div class="features-grid">
       <div class="feature-card">
-        <div class="feat-icon">🚀</div>
-        <h4>一键初始化</h4>
-        <p>自动创建 Git 仓库、<code>.vibe/</code> 目录、角色分配文件、跨会话消息总线，5 秒完成全部配置。</p>
+        <div class="feat-icon">⚡</div>
+        <h4>秒级创建</h4>
+        <p>直接写 SQLite 数据库，4 个角色会话 < 0.2 秒完成，无需模型 API 调用。</p>
       </div>
       <div class="feature-card">
         <div class="feat-icon">🤖</div>
-        <h4>自动创建会话</h4>
-        <p>通过 ZCode CLI 自动创建 5 个角色会话，自动注册到 GUI 任务列表，标题清晰展示角色名。</p>
+        <h4>/trigger 自动触发</h4>
+        <p>自定义 ZCode 命令，一行 <code>/trigger sess_xxx "任务"</code> 唤醒下游会话，无需手动拼 Bash。</p>
       </div>
       <div class="feature-card">
         <div class="feat-icon">📨</div>
-        <h4>跨会话通信</h4>
-        <p><code>HANDOFF.md</code> 消息总线 + <code>ReadSessionContext</code> 上下文拉取，角色间无缝协作。</p>
-      </div>
-      <div class="feature-card">
-        <div class="feat-icon">🔀</div>
-        <h4>双入口工作流</h4>
-        <p>新功能走需求分析 → 设计 → 编码 → 验证；Bug 修复走验证 → 分析 → 编码 → 验证。</p>
-      </div>
-      <div class="feature-card">
-        <div class="feat-icon">⚡</div>
-        <h4>Superpowers 集成</h4>
-        <p>每个角色预设最佳 Superpower 武器库：brainstorming、TDD、systematic-debugging、verification 等。</p>
+        <h4>消息总线</h4>
+        <p><code>HANDOFF.md</code> 记录所有跨会话通信，<code>ReadSessionContext</code> 拉取完整上下文。</p>
       </div>
       <div class="feature-card">
         <div class="feat-icon">📋</div>
         <h4>标准产出文件</h4>
-        <p><code>SPEC.md</code> · <code>DESIGN.md</code> · <code>BUGFIX.md</code> — 每个角色有明确的交付物和验收标准。</p>
+        <p><code>SPEC.md</code> · <code>DESIGN.md</code> · <code>REVIEW.md</code> · <code>BUGFIX.md</code> —每个角色有明确交付物。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🛡️</div>
+        <h4>角色边界隔离</h4>
+        <p>每个角色有明确的 ✅/❌ 边界——调试员一行代码都不改，审查员只验证不修改。</p>
+      </div>
+      <div class="feature-card">
+        <div class="feat-icon">🖥️</div>
+        <h4>GUI 友好</h4>
+        <p>会话标题显示角色名，不被首条消息覆盖，重启后即可看到整洁的会话列表。</p>
       </div>
     </div>
   </div>
@@ -404,26 +390,26 @@
       <h2>三步开始协作</h2>
     </div>
 
-    <h3 style="margin-top:40px;">1. 安装 Skill</h3>
+    <h3 style="margin-top:40px;">1. 安装</h3>
     <div class="code-block">
-      <span class="comment"># 克隆到用户 skills 目录</span><br>
-      git clone <span class="str">https://github.com/WITstudio86/vibe-coding-init.git</span> ~/.agents/skills/vibe-coding-init/
+      <span class="comment"># 安装 skill</span><br>
+      cp SKILL.md ~/.agents/skills/vibe-coding-init/<br><br>
+      <span class="comment"># 安装 /trigger 命令</span><br>
+      mkdir -p ~/.zcode/commands<br>
+      cp scripts/trigger.md ~/.zcode/commands/
     </div>
 
-    <h3 style="margin-top:32px;">2. 触发初始化</h3>
+    <h3 style="margin-top:32px;">2. 初始化</h3>
     <div class="code-block">
-      <span class="comment"># 在 ZCode 中打开项目目录，输入：</span><br>
+      <span class="comment"># 在 ZCode 项目目录中输入：</span><br>
       <span class="cmd">初始化 vibe coding 项目</span>
     </div>
 
-    <h3 style="margin-top:32px;">3. 自动创建会话（需 Node ≥ 22）</h3>
+    <h3 style="margin-top:32px;">3. 自动协作</h3>
     <div class="code-block">
-      <span class="comment"># Skill 自动执行以下流程：</span><br>
-      git init<br>
-      mkdir -p .vibe<br>
-      <span class="comment"># 创建 ROLES.md + HANDOFF.md</span><br>
-      <span class="comment"># 创建 5 个 ZCode 会话（需求分析 / Bug修复 / 技术设计 / 代码编写 / 功能验证）</span><br>
-      <span class="comment"># 注册到 GUI 任务列表</span>
+      <span class="comment"># 每个角色完成后，用 /trigger 唤醒下游</span><br>
+      /trigger <span class="arg">sess_xxx</span> <span class="str">"请读取 DESIGN.md，TDD编码实现"</span><br><br>
+      <span class="comment"># 4 个会话秒级创建，协作链路自动接力</span>
     </div>
   </div>
 </section>
@@ -433,12 +419,14 @@
   <p>
     <img src="logo.svg" height="20" style="vertical-align:middle;margin-right:8px;" alt="">
     <strong>Vibe Coding Init</strong>
-    &nbsp;·&nbsp; ZCode Skill for multi-role collaboration
+    &nbsp;·&nbsp; 4 角色自动协作 ZCode Skill
   </p>
   <p style="margin-top:8px;">
     <a href="https://github.com/WITstudio86/vibe-coding-init" target="_blank">GitHub</a>
     &nbsp;·&nbsp;
     <a href="https://github.com/WITstudio86/vibe-coding-init/blob/master/SKILL.md" target="_blank">SKILL.md</a>
+    &nbsp;·&nbsp;
+    <a href="https://github.com/WITstudio86/vibe-coding-init/blob/master/scripts/trigger.md" target="_blank">/trigger 命令</a>
     &nbsp;·&nbsp;
     MIT License
   </p>

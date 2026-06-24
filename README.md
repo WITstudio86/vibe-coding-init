@@ -1,16 +1,16 @@
 <p align="center">
-  <img src="logo.svg" alt="Vibe Coding Init" width="200" />
+  <img src="logo.svg" alt="Vibe Coding Init" width="180" />
 </p>
 
 <h1 align="center">Vibe Coding Init</h1>
-<p align="center"><strong>一键初始化多角色协作项目</strong></p>
+<p align="center"><strong>一键初始化多角色自动协作项目</strong></p>
 
 <p align="center">
   <a href="https://witstudio86.github.io/vibe-coding-init/"><img src="https://img.shields.io/badge/🌐_在线预览-Visit_Website-blue?style=flat-square" alt="Website"></a>
   <img src="https://img.shields.io/badge/ZCode-3.1%2B-blue?style=flat-square" alt="ZCode 3.1+">
   <img src="https://img.shields.io/badge/Node-22%2B-green?style=flat-square" alt="Node 22+">
   <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="MIT">
-  <img src="https://img.shields.io/badge/roles-5-purple?style=flat-square" alt="5 roles">
+  <img src="https://img.shields.io/badge/roles-4-purple?style=flat-square" alt="4 roles">
 </p>
 
 > 🌐 **在线介绍页**：[witstudio86.github.io/vibe-coding-init](https://witstudio86.github.io/vibe-coding-init/)
@@ -19,180 +19,87 @@
 
 ## 这是什么？
 
-**Vibe Coding Init** 是一个 ZCode Skill，用于一键初始化 vibe coding 项目的协作结构。
+一键初始化多角色协作项目：
 
-它会自动完成：
-- ✅ 初始化 Git 仓库
-- ✅ 创建 `.vibe/` 协作目录
-- ✅ 生成角色分配文件（`.vibe/ROLES.md`）
-- ✅ 搭建跨会话消息总线（`.vibe/HANDOFF.md`）
-- ✅ **自动创建 5 个 ZCode 角色会话**并在 GUI 中可见
+- ✅ Git 仓库初始化
+- ✅ 创建 `.vibe/` 协作目录（ROLES.md + HANDOFF.md）
+- ✅ **秒级创建 4 个 ZCode 角色会话**（直接写数据库，无需 API）
+- ✅ GUI 中标题为角色名（不被首条消息覆盖）
+- ✅ `/trigger` 自定义命令——一行触发下游会话
 
 ---
 
-## 五角色协作体系
+## 四角色体系
+
+| 角色 | 职责 | 产出 | 边界 |
+|------|------|------|------|
+| 📐 规划师 | 需求分析 + 技术设计 | SPEC.md + DESIGN.md | 不写代码 |
+| 💻 程序员 | TDD 编码实现 | 项目源码 | 不设计、不验收 |
+| 🔍 审查员 | 功能验收 + 代码审查 | REVIEW.md | 不修改代码 |
+| 🐛 调试员 | Bug 根因分析 | BUGFIX.md | **一行代码都不改** |
 
 ```mermaid
 graph LR
-    A[🎯 需求分析<br/>新功能入口] -->|SPEC.md| C[🏗️ 技术设计<br/>架构与方案]
-    B[🐛 Bug修复<br/>缺陷修复入口] -->|BUGFIX.md| D[💻 代码编写<br/>实现与修复]
-    C -->|DESIGN.md| D
-    D -->|变更报告| E[✅ 功能验证<br/>验收与审查]
-    E -.->|Bug报告| B
-    E -.->|需求偏差| A
+    A[📐 规划师] -->|DESIGN.md| B[💻 程序员]
+    B -->|变更报告| C[🔍 审查员]
+    C -.->|Bug报告| D[🐛 调试员]
+    D -.->|BUGFIX.md| B
+    C -.->|需求偏差| A
 ```
-
-| # | 角色 | 图标 | 职责 | 产出文件 |
-|---|------|------|------|----------|
-| 1 | 需求分析 | `🎯` | 分析需求、拆解任务（新功能入口） | `.vibe/SPEC.md` |
-| 2 | Bug修复 | `🐛` | 分析缺陷根因、编写修复方案（缺陷入口）| `.vibe/BUGFIX.md` |
-| 3 | 技术设计 | `🏗️` | 架构方案、数据模型、接口契约 | `.vibe/DESIGN.md` |
-| 4 | 代码编写 | `💻` | 根据方案编写/修复代码 | 项目源码 |
-| 5 | 功能验证 | `✅` | 验收功能、审查质量、发现缺陷 | 验证报告 |
 
 ---
 
 ## 快速开始
 
-### 安装
-
 ```bash
-# 安装到用户级 skills（所有项目可用）
+# 安装 skill
 cp SKILL.md ~/.agents/skills/vibe-coding-init/
 
-# 或在 ZCode 中输入
-/技能创建者 加载 vibe-coding-init
+# 安装 /trigger 命令
+mkdir -p ~/.zcode/commands
+cp scripts/trigger.md ~/.zcode/commands/
 ```
 
-### 使用
-
-在 ZCode 项目目录中输入：
+在 ZCode 中：
 
 ```
 初始化 vibe coding 项目
 ```
 
-或者显式调用：
-
-```
-/vibe-coding-init
-```
-
-Skill 会自动检测环境并开始初始化。
-
-### 自动创建会话（需要 Node ≥ 22）
-
-```bash
-# 确保 Node 22+
-brew install node@22
-export PATH="/usr/local/opt/node@22/bin:$PATH"
-
-# Skill 会自动执行以下等价命令：
-ZCODE="/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs"
-
-node "$ZCODE" --prompt "你是「项目名」的需求分析角色…" --cwd "$(pwd)" --mode yolo
-node "$ZCODE" --prompt "你是「项目名」的 Bug修复角色…" --cwd "$(pwd)" --mode yolo
-# ... 共 5 个会话
-```
-
-创建完成后，会话自动注册到 ZCode GUI 任务列表，标题显示为角色名。
-
 ---
 
-## 跨会话协作机制
-
-### 消息总线 (HANDOFF.md)
-
-所有角色通过 `.vibe/HANDOFF.md` 传递消息：
-
-```markdown
-| 时间 | 发送方 | 接收方 | 消息 |
-|------|--------|--------|------|
-| 10:00 | 🎯 需求分析 | 🏗️ 技术设计 | SPEC.md 已完成，请接手设计 |
-| 10:15 | 🏗️ 技术设计 | 💻 代码编写 | DESIGN.md 已完成，请开始编码 |
-| 10:30 | 💻 代码编写 | ✅ 功能验证 | 实现完成，文件：index.html, app.js |
-| 10:35 | ✅ 功能验证 | 🐛 Bug修复 | 发现 Bug：计时器暂停后无法恢复 |
-```
-
-### 会话上下文读取
-
-任意角色可通过 `ReadSessionContext` 拉取其他角色的完整讨论：
+## 自动协作
 
 ```
-ReadSessionContext(sessionId="上游会话ID", query="关于 SPEC.md 的设计决策")
+规划师 完成 → /trigger 程序员 → /trigger 审查员
+                                      │
+                          Bug ──→ /trigger 调试员 → /trigger 程序员
+                          偏差 ──→ /trigger 规划师
 ```
 
----
-
-## 双入口工作流
-
-### 新功能流（需求驱动）
-
-```
-需求分析 → 技术设计 → 代码编写 → 功能验证 → ✅ 完成
-```
-
-### 缺陷修复流（Bug 驱动）
-
-```
-功能验证 → Bug修复 → [技术设计?] → 代码编写 → 功能验证 → ✅ 关闭
-```
-
-复杂 Bug 涉及架构变更时，Bug修复会先经过技术设计。
-
----
-
-## Superpowers 集成
-
-每个角色在职责范围内自动使用对应的 ZCode Superpower：
-
-| Superpower | 需求分析 | Bug修复 | 技术设计 | 代码编写 | 功能验证 |
-|---|---|---|---|---|---|
-| `brainstorming` | ✅ | ✅ | ✅ | — | — |
-| `writing-plans` | ✅ | ✅ | ✅ | — | — |
-| `systematic-debugging` | — | ✅ | — | ✅ | ✅ |
-| `test-driven-development` | — | — | — | ✅ | — |
-| `subagent-driven-development` | — | — | — | ✅ | — |
-| `verification-before-completion` | — | ✅ | — | ✅ | ✅ |
+**核心特性**：
+- **秒级创建**：直接写 SQLite，4 个会话 < 0.2 秒
+- **`/trigger` 命令**：一行触发下游，无需拼 Bash
+- **GUI 可见**：标题为角色名（`title_overridden=1`）
+- **消息总线**：`.vibe/HANDOFF.md` 记录跨会话通信
+- **角色隔离**：每个角色有明确 ✅/❌ 边界
 
 ---
 
 ## 项目结构
 
-初始化后：
-
 ```
-my-project/
 ├── .vibe/
-│   ├── ROLES.md          # 角色分配表 + 协作规则
-│   ├── HANDOFF.md        # 跨会话消息总线
-│   ├── SPEC.md           # 需求分析产出
-│   ├── DESIGN.md         # 技术设计产出
-│   └── BUGFIX.md         # Bug修复产出
-├── .git/                 # Git 仓库
+│   ├── ROLES.md      # 角色分配 + 规则
+│   ├── HANDOFF.md    # 消息总线
+│   ├── SPEC.md       # 规划师产出
+│   ├── DESIGN.md     # 规划师产出
+│   ├── REVIEW.md     # 审查员产出
+│   └── BUGFIX.md     # 调试员产出
+├── .git/
 └── (你的代码)
 ```
 
----
-
-## 环境要求
-
-| 依赖 | 版本 | 用途 |
-|------|------|------|
-| ZCode | ≥ 3.1 | Skill 运行环境 |
-| Node.js | ≥ 22 | 自动创建会话（Path A） |
-| macOS / Linux | — | 兼容 `zcode` CLI |
-
-如果 Node < 22，Skill 会自动走 **Path B（手动创建）**，提供完整的手动操作指南。
-
----
-
-## 许可证
+## 许可
 
 MIT © 2024
-
----
-
-<p align="center">
-  <sub>Made for the vibe coding workflow</sub>
-</p>
