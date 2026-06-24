@@ -6,11 +6,14 @@
 <p align="center"><strong>一键初始化多角色协作项目</strong></p>
 
 <p align="center">
+  <a href="https://witstudio86.github.io/vibe-coding-init/"><img src="https://img.shields.io/badge/🌐_在线预览-Visit_Website-blue?style=flat-square" alt="Website"></a>
   <img src="https://img.shields.io/badge/ZCode-3.1%2B-blue?style=flat-square" alt="ZCode 3.1+">
   <img src="https://img.shields.io/badge/Node-22%2B-green?style=flat-square" alt="Node 22+">
   <img src="https://img.shields.io/badge/license-MIT-yellow?style=flat-square" alt="MIT">
   <img src="https://img.shields.io/badge/roles-5-purple?style=flat-square" alt="5 roles">
 </p>
+
+> 🌐 **在线介绍页**：[witstudio86.github.io/vibe-coding-init](https://witstudio86.github.io/vibe-coding-init/)
 
 ---
 
