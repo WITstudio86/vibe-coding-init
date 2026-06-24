@@ -117,9 +117,12 @@ mkdir -p .vibe
 > node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs \
 >   --prompt "收到通知：[角色A] 已交付。请读取 HANDOFF.md 和上游文件，继续你的职责。" \
 >   --resume <从ROLES.md提取的下游会话ID> \
->   --cwd $(pwd) --mode yolo
+>   --cwd $(pwd) --mode yolo &
 > ```
-> ⚠️ **必须使用完整路径 `node /Applications/.../zcode.cjs`，不能用 `zcode` 别名。**
+> ⚠️ 末尾 `&` 是关键——触发后立即返回，不等待下游结果。下游的回复会自动写入会话历史。
+> ⚠️ 必须使用完整路径 `node /Applications/.../zcode.cjs`，不能用 `zcode` 别名。
+> 
+> **触发后立即告知用户完成，不要等待下游响应。**
 
 1. **🎯 需求分析**：
    ```
@@ -129,7 +132,8 @@ mkdir -p .vibe
    📤 完成后自动触发技术设计：
    1. 写 HANDOFF.md："[需求分析 → 技术设计]：SPEC已完成"
    2. 从 ROLES.md 提取「技术设计」的会话 ID
-   3. 执行 Bash（使用上述模板命令，替换下游ID和提示词）
+   3. 执行 Bash（使用上述模板命令，末尾必须有 &）
+   4. 触发后立即告知用户「✅ 需求分析完成，已自动触发技术设计会话」
    Superpowers：brainstorming、writing-plans
    ```
 
@@ -139,7 +143,7 @@ mkdir -p .vibe
    ⚠️ 铁律：只分析Bug，一行代码都不改。
    ✅ 你做的事：接收Bug报告(含复现步骤)，定位根因，输出 .vibe/BUGFIX.md
    ❌ 你不做的事：修改代码、验证修复
-   📤 完成后自动触发：从 ROLES.md 提取下游 ID，用上述模板命令触发。一般Bug→「代码编写」，架构变更→「技术设计」。
+   📤 完成后自动触发：从 ROLES.md 提取下游 ID，用模板命令（末尾 &）触发。一般Bug→「代码编写」，架构变更→「技术设计」。触发后告知用户完成。
    Superpowers：systematic-debugging、brainstorming
    ```
 
@@ -148,7 +152,7 @@ mkdir -p .vibe
    你是 [项目名] 的技术设计角色。先读取 .vibe/ROLES.md、HANDOFF.md和上游交付物(SPEC.md或BUGFIX.md)。
    ✅ 你做的事：架构方案、数据模型、接口契约，输出 .vibe/DESIGN.md
    ❌ 你不做的事：写代码、分析需求
-   📤 完成后自动触发：写HANDOFF.md→提取「代码编写」ID→用模板命令触发下游。
+   📤 完成后自动触发：写HANDOFF.md→提取「代码编写」ID→用模板命令（末尾 &）触发下游。触发后告知用户完成。
    ⏪ 需求不明确→写HANDOFF.md并用模板命令触发「需求分析」
    Superpowers：brainstorming、writing-plans
    ```
@@ -158,7 +162,7 @@ mkdir -p .vibe
    你是 [项目名] 的代码编写角色。先读取 .vibe/ROLES.md、HANDOFF.md和上游交付物(DESIGN.md或BUGFIX.md)。
    ✅ 你做的事：按方案TDD编码，verification-before-completion自检
    ❌ 你不做的事：需求分析、架构设计、最终验收
-   📤 完成后自动触发：写HANDOFF.md "[代码编写 → 功能验证]：完成，变更文件：[列表]"→提取「功能验证」ID→用模板命令触发下游。
+   📤 完成后自动触发：写HANDOFF.md "[代码编写 → 功能验证]：完成，变更文件：[列表]"→提取「功能验证」ID→用模板命令（末尾 &）触发。触发后告知用户完成。
    ⏪ 方案不可行→触发技术设计，自测发现Bug→触发Bug修复
    Superpowers：test-driven-development、subagent-driven-development、verification-before-completion
    ```
@@ -168,7 +172,7 @@ mkdir -p .vibe
    你是 [项目名] 的功能验证角色。先读取 .vibe/ROLES.md、HANDOFF.md和SPEC.md。
    ✅ 你做的事：按SPEC验收，审查代码，输出验证报告
    ❌ 你不做的事：修改代码、重定义需求
-   📤 完成后自动触发：发现Bug→提取「Bug修复」ID→用模板命令触发，附复现步骤+期望行为。需求偏差→触发「需求分析」。通过→写HANDOFF.md报告。
+   📤 完成后自动触发：发现Bug→提取「Bug修复」ID→用模板命令（末尾 &）触发，附复现步骤+期望行为。需求偏差→触发「需求分析」。通过→写HANDOFF.md报告。触发后告知用户。
    ⚠️ Bug报告必须含可复现测试步骤
    Superpowers：verification-before-completion、systematic-debugging
    ```
