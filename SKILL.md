@@ -187,51 +187,39 @@ mkdir -p .vibe
 
 ### 6. 创建角色会话
 
-#### 路径 A：自动创建（Node ≥ 22）
+#### 路径 A：秒级创建（Node ≥ 22，直接写数据库）
 
-**前置**：Node ≥ 22 + `~/.zcode/cli/config.json` 含有效 model provider
-
-```bash
-ZCODE="/Applications/ZCode.app/Contents/Resources/glm/zcode.cjs"
-CWD="$(pwd)"
-
-# 1. 需求分析（完成后自动触发技术设计）
-node "$ZCODE" --prompt "你是「{PROJECT_NAME}」的需求分析角色。先读取 .vibe/ROLES.md。职责：分析需求→SPEC.md。⚠️只分析不设计不编码。📤完成后：(1)写HANDOFF.md (2)从ROLES.md提取「技术设计」会话ID (3)Bash触发: node $ZCODE --prompt '收到通知：[需求分析]SPEC已完成，请读HANDOFF.md+SPEC.md继续设计' --resume <ID> --cwd . --mode yolo。" --cwd "$CWD" --mode yolo
-
-# 2. Bug修复（⚠️只分析不编码，完成后触发代码编写或技术设计）
-node "$ZCODE" --prompt "你是「{PROJECT_NAME}」的Bug修复角色。先读取 .vibe/ROLES.md。职责：分析Bug根因→BUGFIX.md。⚠️铁律：一行代码不改。📤完成后从ROLES.md提取下游ID，Bash触发。一般Bug→代码编写，架构变更→技术设计。" --cwd "$CWD" --mode yolo
-
-# 3. 技术设计（⚠️只设计不编码，完成后触发代码编写）
-node "$ZCODE" --prompt "你是「{PROJECT_NAME}」的技术设计角色。先读取 .vibe/ROLES.md+上游交付物。职责：设计→DESIGN.md。⚠️只设计不编码。📤完成后从ROLES.md提取「代码编写」ID，Bash触发。需求不明确→回溯触发需求分析。" --cwd "$CWD" --mode yolo
-
-# 4. 代码编写（⚠️只编码不设计不验收，完成后触发功能验证）
-node "$ZCODE" --prompt "你是「{PROJECT_NAME}」的代码编写角色。先读取 .vibe/ROLES.md+上游交付物。职责：TDD编码。⚠️只编码，不做需求分析/架构设计/最终验收。📤完成后从ROLES.md提取「功能验证」ID，Bash触发。方案问题→技术设计，新Bug→Bug修复。" --cwd "$CWD" --mode yolo
-
-# 5. 功能验证（⚠️只验证不修改代码，按发现类型触发Bug修复或需求分析）
-node "$ZCODE" --prompt "你是「{PROJECT_NAME}」的功能验证角色。先读取 .vibe/ROLES.md+HANDOFF.md+SPEC.md。职责：验收+审查。⚠️只验证不修改代码不重定义需求。📤发现Bug→提取「Bug修复」ID，Bash触发并附复现步骤。需求偏差→触发需求分析。通过→写验证报告。" --cwd "$CWD" --mode yolo
-```
-
-**提取会话 ID 并注册到 GUI**：
+无需调用模型，5 个会话秒级完成：
 
 ```bash
 node -e "
 const { DatabaseSync } = require('node:sqlite');
-const h = require('os').homedir();
-const cli = new DatabaseSync(h+'/.zcode/cli/db/db.sqlite');
-const rows = cli.prepare('SELECT id, time_created FROM session WHERE directory=? ORDER BY time_created DESC LIMIT 5').all(process.cwd());
-const v2 = new DatabaseSync(h+'/.zcode/v2/tasks-index.sqlite');
-const ins = v2.prepare('INSERT OR REPLACE INTO tasks (workspace_key, workspace_path, task_id, title, task_status, provider, mode, model, created_at, updated_at, meta_json, title_overridden) VALUES (?,?,?,?,?,?,?,?,?,?,?,1)');
-const roles = ['🎯 需求分析','🐛 Bug修复','🏗️ 技术设计','💻 代码编写','✅ 功能验证'];
-rows.reverse().forEach((r,i) => {
-  const t = roles[i]+' — {PROJECT_NAME}';
-  ins.run(process.cwd(), process.cwd(), r.id, t, 'active', 'glm', 'build', 'da99b590-0a1a-4b4d-a152-16f0ed4171c0/deepseek-v4-pro', r.time_created, r.time_created);
-  const cliUpd = cli.prepare('UPDATE session SET title=?, title_source=? WHERE id=?');
-  cliUpd.run(t, 'custom', r.id);
-  console.log(r.id, t);
+const { randomUUID } = require('crypto');
+const cli = new DatabaseSync(require('os').homedir()+'/.zcode/cli/db/db.sqlite');
+const v2 = new DatabaseSync(require('os').homedir()+'/.zcode/v2/tasks-index.sqlite');
+const CWD = process.cwd(), NOW = Date.now();
+const roles = [
+  { t:'🎯 需求分析', p:'你是需求分析角色。先读.vibe/ROLES.md。职责：分析→SPEC.md。⚠️只分析不设计不编码。📤完成后：写HANDOFF.md→提取「技术设计」ID→Bash触发下游。' },
+  { t:'🐛 Bug修复', p:'你是Bug修复角色。先读.vibe/ROLES.md。职责：分析Bug→BUGFIX.md。⚠️一行代码不改。📤完成后：提取下游ID→Bash触发。一般Bug→代码编写，架构变更→技术设计。' },
+  { t:'🏗️ 技术设计', p:'你是技术设计角色。先读.vibe/ROLES.md+上游。职责：设计→DESIGN.md。⚠️只设计不编码。📤完成后：提取「代码编写」ID→Bash触发。需求不明确→回溯触发需求分析。' },
+  { t:'💻 代码编写', p:'你是代码编写角色。先读.vibe/ROLES.md+上游。职责：TDD编码。⚠️只编码不设计不验收。📤完成后：提取「功能验证」ID→Bash触发。方案问题→技术设计，Bug→Bug修复。' },
+  { t:'✅ 功能验证', p:'你是功能验证角色。先读.vibe/ROLES.md+HANDOFF.md+SPEC.md。职责：验收+审查。⚠️只验证不修改代码。📤发现Bug→提取「Bug修复」ID→Bash触发附复现步骤。偏差→需求分析。通过→写报告。' },
+];
+const insS = cli.prepare('INSERT INTO session(id,project_id,slug,directory,path,title,version,revert,permission,time_created,time_updated,task_type,title_source,time_title_updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
+const insT = v2.prepare('INSERT OR REPLACE INTO tasks(workspace_key,workspace_path,task_id,title,task_status,provider,mode,model,created_at,updated_at,meta_json,title_overridden) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)');
+const insM = cli.prepare('INSERT INTO message(id,session_id,role,content,time_created,time_updated) VALUES(?,?,?,?,?,?)');
+roles.forEach(r => {
+  const sid='sess_'+randomUUID();
+  insS.run(sid,'{PROJECT_ID}',sid,CWD,CWD,r.t+' — {PROJECT_NAME}','0.14.8','{\"keptMessageIDs\":[]}','{\"mode\":\"yolo\"}',NOW,NOW,'interactive','custom',NOW);
+  insT.run(CWD,CWD,sid,r.t+' — {PROJECT_NAME}','active','glm','build','da99b590-0a1a-4b4d-a152-16f0ed4171c0/deepseek-v4-pro',NOW,NOW,'{}');
+  insM.run('msg_'+randomUUID(),sid,'user',r.p,NOW,NOW);
+  console.log(sid.substring(0,10)+'... '+r.t);
 });
 cli.close(); v2.close();
 "
 ```
+
+> 首次消息为角色启动提示词，后续通过 `zcode --prompt --resume <ID>` 触发时可自动继续。
 
 #### 路径 B：手动创建（Node < 22）
 
