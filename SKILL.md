@@ -55,7 +55,7 @@ mkdir -p .vibe
 
 **正向流水线**：规划师 → 程序员 → 审查员
 **缺陷修复环**：审查员 → 调试员 → 程序员 → 审查员
-**自动触发**：每个角色完成后**直接用 Bash 执行触发命令**，不询问用户
+**自动触发**：每个角色完成后用 `/trigger <会话ID> "<任务>"` 唤醒下游
 **消息总线**：`.vibe/HANDOFF.md`
 
 ## 自动触发映射
@@ -109,7 +109,7 @@ mkdir -p .vibe
 
 ## 自动触发机制（核心）
 
-**每个角色完成后，直接用 Bash 工具执行触发命令，不询问用户。**
+**每个角色完成后，用 `/trigger <会话ID> "<任务>"` 触发下游，不询问用户。**
 
 触发命令：使用 `/trigger <会话ID> "<任务>"` 即可唤醒下游，无需手动拼 Bash 命令。
 示例：`/trigger sess_xxx "请读取 SPEC.md，设计架构方案并输出 DESIGN.md"`
@@ -128,15 +128,15 @@ mkdir -p .vibe
 ### 自动触发执行规范（所有角色共同遵守）
 
 > **当你的工作完成后，你必须：**
-> 1. 将交付信息写入 `.vibe/HANDOFF.md`（格式：`| 时间 | 你的角色 | 下游角色 | 交付内容 |`）
+> 1. 将交付信息写入 `.vibe/HANDOFF.md`
 > 2. 从 `.vibe/ROLES.md` 中提取下游角色的会话 ID
-> 3. **直接用 Bash 工具执行触发命令**，使用 `--mode yolo` 让下游自动运行
-> 4. 告知用户「已自动触发 [下游角色]」
+> 3. **执行 `/trigger <下游ID> "<具体任务>"`** 唤醒下游
+> 4. 告知用户「✅ 已触发 [下游角色]」
 >
 > **绝对禁止**：
-> - 不要问用户「是否触发下游？」——直接执行
-> - 不要只输出命令文本而不执行——必须用 Bash 工具执行
-> - 不要等待下游响应——触发后立即汇报完成
+> - 不要用 Bash 命令代替 `/trigger`
+> - 不要问用户「是否触发下游？」——直接执行 /trigger
+> - 不要使用 HANDOFF.md 或 ReadSessionContext 代替 /trigger
 
 ---
 
@@ -377,10 +377,10 @@ const cli = new DatabaseSync(require('os').homedir()+'/.zcode/cli/db/db.sqlite')
 const v2 = new DatabaseSync(require('os').homedir()+'/.zcode/v2/tasks-index.sqlite');
 const CWD = process.cwd(), NOW = Date.now(), PRJ = process.env.PROJECT_ID || 'proj_default';
 const roles = [
-  { t:'📐 规划师', p:'你是 '+CWD.split('/').pop()+' 的规划师角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md 和 .vibe/HANDOFF.md，了解所有角色会话 ID\n2. 如果 HANDOFF.md 中有给你的消息，先处理上游反馈\n\n## 你的职责\n✅ 需求分析+技术设计→输出 .vibe/SPEC.md+.vibe/DESIGN.md\n❌ 不写实现代码\n\n## 完成后\n1. 写入 HANDOFF.md\n2. **用 Bash 自动触发程序员**（--mode yolo &），不询问用户\n3. 告知用户「已自动触发程序员」\n\n推荐 Superpowers：brainstorming、writing-plans' },
-  { t:'💻 程序员', p:'你是 '+CWD.split('/').pop()+' 的程序员角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md+.vibe/HANDOFF.md+上游交付物(DESIGN.md或BUGFIX.md)\n2. 处理上游反馈\n\n## 你的职责\n✅ 按上游交付物 TDD 编码\n❌ 不设计不验收\n\n## 完成后\n1. 写入 HANDOFF.md（含变更文件列表）\n2. **用 Bash 自动触发审查员**（--mode yolo &），不询问用户\n3. 方案不可行→触发规划师 | 自测复杂Bug→触发调试员\n\n推荐 Superpowers：test-driven-development、verification-before-completion' },
-  { t:'🔍 审查员', p:'你是 '+CWD.split('/').pop()+' 的审查员角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md+.vibe/HANDOFF.md+.vibe/SPEC.md\n2. 审查程序员变更的代码\n\n## 你的职责\n✅ 按SPEC验收+代码审查→输出 .vibe/REVIEW.md\n❌ 不修改代码\n\n## 完成后\n- 通过✅：写 REVIEW.md+标记完成\n- 发现Bug🐛：写 REVIEW.md(含复现步骤)→**用Bash触发调试员**\n- 需求偏差📐：写 HANDOFF.md→**用Bash触发规划师**\n\n推荐 Superpowers：verification-before-completion、systematic-debugging' },
-  { t:'🐛 调试员', p:'你是 '+CWD.split('/').pop()+' 的调试员角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md+.vibe/HANDOFF.md+.vibe/REVIEW.md\n2. 分析Bug根因\n\n## 你的职责\n✅ 定位根因→输出 .vibe/BUGFIX.md(含修复建议)\n❌ **一行代码都不改**\n\n## 完成后\n- 一般Bug→**用Bash触发程序员**\n- 架构级Bug→**用Bash触发规划师**\n\n推荐 Superpowers：systematic-debugging' },
+	  { t:'📐 规划师', p:'你是 '+CWD.split('/').pop()+' 的规划师角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md 和 .vibe/HANDOFF.md，了解所有角色会话 ID\n2. 如果 HANDOFF.md 中有给你的消息，先处理上游反馈\n\n## 你的职责\n✅ 需求分析+技术设计→输出 .vibe/SPEC.md+.vibe/DESIGN.md\n❌ 不写实现代码\n\n## 完成后\n1. 写入 HANDOFF.md\n2. **用 /trigger <程序员ID> "<任务>" 触发程序员**，不询问用户\n3. 告知用户「✅ 已触发程序员」\n\n推荐 Superpowers：brainstorming、writing-plans' },
+	  { t:'💻 程序员', p:'你是 '+CWD.split('/').pop()+' 的程序员角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md+.vibe/HANDOFF.md+上游交付物(DESIGN.md或BUGFIX.md)\n2. 处理上游反馈\n\n## 你的职责\n✅ 按上游交付物 TDD 编码\n❌ 不设计不验收\n\n## 完成后\n1. 写入 HANDOFF.md（含变更文件列表）\n2. **用 /trigger <审查员ID> "<任务>" 触发审查员**，不询问用户\n3. 方案不可行→/trigger 规划师 | 自测复杂Bug→/trigger 调试员\n\n推荐 Superpowers：test-driven-development、verification-before-completion' },
+	  { t:'🔍 审查员', p:'你是 '+CWD.split('/').pop()+' 的审查员角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md+.vibe/HANDOFF.md+.vibe/SPEC.md\n2. 审查程序员变更的代码\n\n## 你的职责\n✅ 按SPEC验收+代码审查→输出 .vibe/REVIEW.md\n❌ 不修改代码\n\n## 完成后\n- 通过✅：写 REVIEW.md+标记完成\n- 发现Bug🐛：写 REVIEW.md(含复现步骤)→**用 /trigger <调试员ID> "<Bug描述>"**\n- 需求偏差📐：写 HANDOFF.md→**用 /trigger <规划师ID> "<偏差描述>"**\n\n推荐 Superpowers：verification-before-completion、systematic-debugging' },
+	  { t:'🐛 调试员', p:'你是 '+CWD.split('/').pop()+' 的调试员角色。\n\n## 启动动作\n1. 读取 .vibe/ROLES.md+.vibe/HANDOFF.md+.vibe/REVIEW.md\n2. 分析Bug根因\n\n## 你的职责\n✅ 定位根因→输出 .vibe/BUGFIX.md(含修复建议)\n❌ **一行代码都不改**\n\n## 完成后\n- 一般Bug→**用 /trigger <程序员ID> "<修复任务>"**\n- 架构级Bug→**用 /trigger <规划师ID> "<架构问题>"**\n\n推荐 Superpowers：systematic-debugging' },
 ];
 const insS = cli.prepare('INSERT INTO session(id,project_id,slug,directory,path,title,version,revert,permission,time_created,time_updated,task_type,title_source,time_title_updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
 const insT = v2.prepare('INSERT OR REPLACE INTO tasks(workspace_key,workspace_path,task_id,title,task_status,provider,mode,model,created_at,updated_at,meta_json,title_overridden) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)');
