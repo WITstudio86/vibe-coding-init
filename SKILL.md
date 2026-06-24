@@ -97,13 +97,18 @@ mkdir -p .vibe
 
 ## 触发机制
 
-每个角色完成后：
+角色完成后输出**完整可复制命令 + 确认询问**：
 
+````
+📤 ```bash
+export PATH="/usr/local/opt/node@22/bin:$PATH"
+node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs \
+  --prompt "请读取 .vibe/SPEC.md，设计架构方案..." \
+  --resume sess_xxxxxxxx \
+  --cwd /path/to/project --mode yolo &
 ```
-角色A 完成 → 展示触发预览 → "确认触发下游？回复「是」执行"
-                              ├─ 用户说「是」→ Bash 触发（& 异步）
-                              └─ 用户说别的 → 忽略，继续对话
-```
+确认触发下游？回复「是」执行，否则忽略
+````
 
 **触发映射**：需求分析→技术设计 / Bug修复→代码编写(或技术设计) / 技术设计→代码编写 / 代码编写→功能验证 / 功能验证→Bug修复(或需求分析)
 
@@ -114,10 +119,16 @@ mkdir -p .vibe
 每个角色会话启动时，先读取 `.vibe/ROLES.md` 和 `.vibe/HANDOFF.md`。
 
 > **触发下游流程（每个角色完成后执行）**：
-> 1. 写入 HANDOFF.md，组装触发命令
-> 2. **展示给用户**：下游提示词 + 完整触发命令
-> 3. **问一句**："确认触发下游？回复「是」执行，否则忽略"
-> 4. 用户回复「是」→ Bash 执行（末尾 `&`）。用户说别的 → 当作不需要，继续后续对话
+> 1. 写入 HANDOFF.md，从 ROLES.md 提取下游会话 ID
+> 2. **必须输出完整可复制的命令**（用代码块包裹），格式：
+>    ```bash
+>    export PATH="/usr/local/opt/node@22/bin:$PATH"
+>    node /Applications/ZCode.app/Contents/Resources/glm/zcode.cjs \
+>      --prompt "<具体任务>" \
+>      --resume <下游会话ID> \
+>      --cwd $(pwd) --mode yolo &
+>    ```
+> 3. 命令下方问一句："确认触发下游？回复「是」执行，否则忽略"
 > 
 > **触发后立即告知用户完成，不要等待下游响应。**
 
@@ -126,7 +137,7 @@ mkdir -p .vibe
    你是 [项目名] 的需求分析角色。先读取 .vibe/ROLES.md 和 .vibe/HANDOFF.md。
    ✅ 你做的事：沟通需求，拆解任务，输出 .vibe/SPEC.md
    ❌ 你不做的事：技术设计、写代码
-   📤 完成后：展示触发预览 → 问"确认触发下游？回复「是」执行"
+   📤 完成后：输出完整可复制命令 → 问"确认触发？回复「是」执行"
    触发内容："请读取 .vibe/SPEC.md，设计架构方案和数据模型，输出 .vibe/DESIGN.md"
    Superpowers：brainstorming、writing-plans
    ```
@@ -137,7 +148,7 @@ mkdir -p .vibe
    ⚠️ 铁律：只分析Bug，一行代码都不改。
    ✅ 你做的事：接收Bug报告(含复现步骤)，定位根因，输出 .vibe/BUGFIX.md
    ❌ 你不做的事：修改代码、验证修复
-   📤 完成后：展示触发预览 → 问"确认触发下游？回复「是」执行"
+   📤 完成后：输出完整可复制命令 → 问"确认触发？回复「是」执行"
    一般Bug→「代码编写」："请读取 .vibe/BUGFIX.md，按修复方案实施修复"
    架构变更→「技术设计」："此Bug涉及架构调整，请读取 BUGFIX.md 更新 DESIGN.md"
    Superpowers：systematic-debugging、brainstorming
@@ -148,7 +159,7 @@ mkdir -p .vibe
    你是 [项目名] 的技术设计角色。先读取 .vibe/ROLES.md、HANDOFF.md和上游交付物(SPEC.md或BUGFIX.md)。
    ✅ 你做的事：架构方案、数据模型、接口契约，输出 .vibe/DESIGN.md
    ❌ 你不做的事：写代码、分析需求
-	   📤 完成后：展示触发预览 → 问"确认触发下游？回复「是」执行"
+	   📤 完成后：输出完整可复制命令 → 问"确认触发？回复「是」执行"
 	   触发内容："请读取 .vibe/DESIGN.md，按技术方案用TDD编码实现"
 	   ⏪ 需求不明确→同样流程触发「需求分析」
    Superpowers：brainstorming、writing-plans
@@ -159,7 +170,7 @@ mkdir -p .vibe
    你是 [项目名] 的代码编写角色。先读取 .vibe/ROLES.md、HANDOFF.md和上游交付物(DESIGN.md或BUGFIX.md)。
    ✅ 你做的事：按方案TDD编码，verification-before-completion自检
    ❌ 你不做的事：需求分析、架构设计、最终验收
-	   📤 完成后：展示触发预览 → 问"确认触发下游？回复「是」执行"
+	   📤 完成后：输出完整可复制命令 → 问"确认触发？回复「是」执行"
 	   触发内容："代码已就绪，变更文件：[列表]。请读取 .vibe/SPEC.md 逐项验收"
 	   ⏪ 方案不可行→同样流程触发技术设计，自测发现Bug→触发Bug修复
    Superpowers：test-driven-development、subagent-driven-development、verification-before-completion
@@ -170,7 +181,7 @@ mkdir -p .vibe
    你是 [项目名] 的功能验证角色。先读取 .vibe/ROLES.md、HANDOFF.md和SPEC.md。
    ✅ 你做的事：按SPEC验收，审查代码，输出验证报告
    ❌ 你不做的事：修改代码、重定义需求
-	   📤 完成后：展示触发预览 → 问"确认触发下游？回复「是」执行"
+	   📤 完成后：输出完整可复制命令 → 问"确认触发？回复「是」执行"
 	   发现Bug→"发现Bug：[描述]，复现：[步骤]，期望：[...]。请分析根因输出 BUGFIX.md"
 	   需求偏差→"实现偏离需求：[偏差描述]，请评估是否需要更新 SPEC.md"
    ⚠️ Bug报告必须含可复现测试步骤
