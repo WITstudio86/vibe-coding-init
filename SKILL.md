@@ -384,16 +384,16 @@ const roles = [
 ];
 const insS = cli.prepare('INSERT INTO session(id,project_id,slug,directory,path,title,version,revert,permission,time_created,time_updated,task_type,title_source,time_title_updated) VALUES(?,?,?,?,?,?,?,?,?,?,?,?,?,?)');
 const insT = v2.prepare('INSERT OR REPLACE INTO tasks(workspace_key,workspace_path,task_id,title,task_status,provider,mode,model,created_at,updated_at,meta_json,title_overridden) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)');
-const insM = cli.prepare('INSERT INTO message(id,session_id,role,content,time_created,time_updated) VALUES(?,?,?,?,?,?)');
-const ids = [];
-roles.forEach(r => {
-  const sid='sess_'+randomUUID();
-  ids.push({id: sid, emoji: r.t.substring(0,2), role: r.t.substring(2).trim()});
-  insS.run(sid,PRJ,sid,CWD,CWD,r.t+' — '+CWD.split('/').pop(),'0.14.8','{\"keptMessageIDs\":[]}','{\"mode\":\"yolo\"}',NOW,NOW,'interactive','custom',NOW);
-  insT.run(CWD,CWD,sid,r.t+' — '+CWD.split('/').pop(),'active','glm','build','da99b590-0a1a-4b4d-a152-16f0ed4171c0/deepseek-v4-pro',NOW,NOW,'{}',0);
-  insM.run('msg_'+randomUUID(),sid,'user',r.p,NOW,NOW);
-  console.log(sid+' '+r.t);
-});
+	const insM = cli.prepare(\"INSERT INTO message(id,session_id,data,time_created,time_updated) VALUES(?,?,?,?,?)\");
+	const ids = [];
+	roles.forEach(r => {
+	  const sid='sess_'+randomUUID(), msgData = JSON.stringify({role:'user',time:{created:NOW},agent:'zcode-agent',model:{providerID:'da99b590-0a1a-4b4d-a152-16f0ed4171c0',modelID:'deepseek-v4-pro'},contextSnapshot:{envInfo:{cwd:CWD}}});
+	  ids.push({id: sid, emoji: r.t.substring(0,2), role: r.t.substring(2).trim()});
+	  insS.run(sid,PRJ,sid,CWD,CWD,r.t+' — '+CWD.split('/').pop(),'0.14.8','{\"keptMessageIDs\":[]}','{\"mode\":\"yolo\"}',NOW,NOW,'interactive','custom',NOW);
+	  insT.run(CWD,CWD,sid,r.t+' — '+CWD.split('/').pop(),'active','glm','build','da99b590-0a1a-4b4d-a152-16f0ed4171c0/deepseek-v4-pro',NOW,NOW,'{}',0);
+	  insM.run('msg_'+randomUUID(),sid,msgData,NOW,NOW);
+	  console.log(sid+' '+r.t);
+	});
 console.log('\\n---IDS_FOR_ROLES---');
 ids.forEach(x => console.log(x.emoji+'|'+x.id+'|'+x.role));
 cli.close(); v2.close();
